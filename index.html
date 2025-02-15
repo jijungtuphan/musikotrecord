@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infrastructure Project Entry</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #b3e0ac;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: black;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 2px solid transparent;
+            border-radius: 5px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+        }
+
+        .empty {
+            border-color: red;
+            background-color: transparent;
+        }
+
+        .filled {
+            border-color: green;
+            background-color: lightgreen;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+
+        #responseMessage {
+            text-align: center;
+            font-size: 18px;
+            color: green;
+            margin-top: 10px;
+        }
+
+        #dataTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            display: none;
+        }
+
+        #dataTable th, #dataTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        #dataTable th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #dataTable tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>पूर्वाधार बिकाश कार्यक्रम रेकर्ड</h2>
+    <label for="projectStage">योजना को अवस्था छान्नुहोस्</label>
+    <select id="projectStage" onchange="showForm()">
+        <option value="">--Select--</option>
+        <option value="Estimate">Estimate</option>
+        <option value="WorkCompletion">Work Completion</option>
+    </select>
+</div>
+
+<div class="container" id="formContainer" style="display: none;">
+    <form id="projectForm">
+        <select id="fiscalYear">
+            <option value="2081/082">2081/082</option>
+        </select>
+        <select id="budgetType" required>
+            <option value="">बजेट प्रकार छान्नुहोस्</option>
+            <option value="संघीय">संघीय</option>
+            <option value="प्रदेश">प्रदेश</option>
+            <option value="नगरपालिका">नगरपालिका</option>
+            <option value="सहरी साशकीय">सहरी साशकीय</option>
+            <option value="प्रधानमन्त्री रोजगार कार्यक्रम">प्रधानमन्त्री रोजगार कार्यक्रम</option>
+            <option value="मुख्यमन्त्री रोजगार कार्यक्रम">मुख्यमन्त्री रोजगार कार्यक्रम</option>
+            <option value="अन्य">अन्य</option>
+        </select>
+        <input type="number" id="wardNo" placeholder="Ward No." required>
+        <input type="text" id="projectName" placeholder="योजना को नाम" required>
+        <select id="projectType" required onchange="updateWorkTypes()">
+            <option value="">योजना को प्रकार</option>
+            <option value="Road">Road</option>
+            <option value="गोरेटो बाटो">गोरेटो बाटो</option>
+            <option value="Water Supply">Water Supply</option>
+            <option value="Irrigation">Irrigation</option>
+            <option value="Building">Building</option>
+            <option value="Bridge">Bridge</option>
+            <option value="Others">Others</option>
+        </select>
+        <select id="workType" required>
+            <option value="">मुख्य काम</option>
+        </select>
+        <input type="text" id="otherWorkDetails" placeholder="अन्य काम को विवरण" required>
+        <input type="text" id="additionalInput" placeholder="Length (m) / Capacity / Room No." required>
+        <input type="number" id="estimatedAmount" placeholder="Estimated Amount (NRs)" required>
+        <input type="text" id="contractDate" placeholder="सम्झौता मिति (YYYY/MM/DD)" required>
+        <input type="number" id="valuationAmount" placeholder="Valuation Amount (NRs)" required>
+        <input type="text" id="workCompletionDate" placeholder="कार्यसम्पन्न मिति (YYYY/MM/DD)" required>
+        <input type="text" id="userName" placeholder="User Name" required>
+        <input type="text" id="remarks" placeholder="Remarks">
+        <button type="button" class="submit-btn" onclick="submitData()">Submit</button>
+    </form>
+    <p id="responseMessage"></p>
+</div>
+
+<div class="container" id="tableContainer">
+    <h2>सबै रेकर्डहरू</h2>
+    <table id="dataTable">
+        <thead>
+            <tr>
+                <th>वार्ड नं.</th>
+                <th>योजना नाम</th>
+                <th>प्रकार</th>
+                <th>मुख्य काम</th>
+                <th>अनुमानित रकम</th>
+                <th>मिति</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+    </table>
+</div>
+
+<script>
+    let storedData = JSON.parse(localStorage.getItem('projectData')) || [];
+    displayData();
+
+    function showForm() {
+        const stage = document.getElementById("projectStage").value;
+        document.getElementById("formContainer").style.display = stage ? "block" : "none";
+
+        const fieldsToHide = ["additionalInput", "valuationAmount", "workCompletionDate"];
+        fieldsToHide.forEach(field => {
+            document.getElementById(field).style.display = stage === "Estimate" ? "none" : "block";
+        });
+    }
+
+    function updateWorkTypes() {
+        let projectType = document.getElementById("projectType").value;
+        let workTypeSelect = document.getElementById("workType");
+        workTypeSelect.innerHTML = "<option value=''>मुख्य काम</option>";
+
+        const workTypes = {
+            "Road": ["New Cutting", "Double Cutting", "PCC", "RCC", "Soling"],
+            "गोरेटो बाटो": ["New Cutting", "Double Cutting", "PCC", "RCC", "Soling"],
+            "Water Supply": ["Intake", "RVT", "Pipeline"],
+            "Irrigation": ["Earth Canal", "PCC Canal", "RCC Canal"],
+            "Building": ["New Building Construction", "Maintenance", "Toilet Construction"],
+            "Bridge": ["Suspension Bridge", "Concrete Bridge"],
+            "Others": ["Miscellaneous"]
+        };
+
+        if (workTypes[projectType]) {
+            workTypes[projectType].forEach(type => {
+                let option = document.createElement("option");
+                option.value = type;
+                option.textContent = type;
+                workTypeSelect.appendChild(option);
+            });
+        }
+    }
+
+    function resetForm() {
+        document.getElementById("fiscalYear").value = "2081/082";
+        document.getElementById("budgetType").selectedIndex = 0;
+        document.getElementById("wardNo").value = '';
+        document.getElementById("projectName").value = '';
+        document.getElementById("projectType").selectedIndex = 0;
+        document.getElementById("workType").innerHTML = '<option value="">मुख्य काम</option>';
+        document.getElementById("otherWorkDetails").value = '';
+        document.getElementById("additionalInput").value = '';
+        document.getElementById("estimatedAmount").value = '';
+        document.getElementById("contractDate").value = '';
+        document.getElementById("valuationAmount").value = '';
+        document.getElementById("workCompletionDate").value = '';
+        document.getElementById("userName").value = '';
+        document.getElementById("remarks").value = '';
+        updateWorkTypes();
+    }
+
+    function displayData() {
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        
+        storedData.forEach((entry, index) => {
+            const row = `
+                <tr>
+                    <td>${entry.wardNo}</td>
+                    <td>${entry.projectName}</td>
+                    <td>${entry.projectType}</td>
+                    <td>${entry.workType}</td>
+                    <td>${entry.estimatedAmount}</td>
+                    <td>${entry.contractDate}</td>
+                </tr>`;
+            tbody.innerHTML += row;
+        });
+
+        document.getElementById('dataTable').style.display = storedData.length > 0 ? 'table' : 'none';
+    }
+
+    function submitData() {
+        const stage = document.getElementById("projectStage").value;
+        const sheetName = stage === "Estimate" ? "Sheet7" : null;
+
+        const formData = {
+            fiscalYear: document.getElementById("fiscalYear").value,
+            budgetType: document.getElementById("budgetType").value,
+            wardNo: document.getElementById("wardNo").value,
+            projectName: document.getElementById("projectName").value,
+            projectType: document.getElementById("projectType").value,
+            workType: document.getElementById("workType").value,
+            otherWorkDetails: document.getElementById("otherWorkDetails").value,
+            additionalInput: document.getElementById("additionalInput").value,
+            estimatedAmount: document.getElementById("estimatedAmount").value,
+            contractDate: document.getElementById("contractDate").value,
+            valuationAmount: document.getElementById("valuationAmount").value,
+            workCompletionDate: document.getElementById("workCompletionDate").value,
+            userName: document.getElementById("userName").value,
+            remarks: document.getElementById("remarks").value,
+            fileUrl: "No File",
+            responseMessage: "Submitted Successfully",
+            sheetName: sheetName
+        };
+
+        // Save to localStorage
+        storedData.push(formData);
+        localStorage.setItem('projectData', JSON.stringify(storedData));
+        
+        // Update table display
+        displayData();
+
+        fetch("https://script.google.com/macros/s/AKfycbxfogO_aoWevUzVS1kA-8X-bZAe8Yk5UHFF8tnGdk3Mdn--pizmRjDOpNlqmouZheWY/exec", {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData)
+        }).then(() => {
+            document.getElementById("responseMessage").innerText = "✅ Data Submitted Successfully!";
+            resetForm();
+        }).catch(error => {
+            document.getElementById("responseMessage").innerText = "❌ Error Submitting Data!";
+            console.error("Error:", error);
+        });
+    }
+</script>
+
+<p>&copy; Developed by Tuphan Jijung KC 😊</p>
+</body>
+</html>    
