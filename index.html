@@ -34,22 +34,24 @@
             width: 100%;
             padding: 8px;
             margin: 8px 0;
-            border: 2px solid transparent;
+            border: 2px solid #ddd;
             border-radius: 5px;
+            transition: all 0.3s ease;
         }
 
         input:focus, select:focus {
             outline: none;
+            border-color: #4CAF50;
         }
 
         .empty {
-            border-color: red;
-            background-color: transparent;
+            border-color: #dc3545 !important;
+            background-color: #ffe6e6;
         }
 
         .filled {
-            border-color: green;
-            background-color: lightgreen;
+            border-color: #28a745 !important;
+            background-color: #e8f5e9;
         }
 
         .submit-btn {
@@ -62,6 +64,7 @@
             font-size: 16px;
             cursor: pointer;
             transition: background 0.3s ease;
+            margin-top: 15px;
         }
 
         .submit-btn:hover {
@@ -71,8 +74,15 @@
         #responseMessage {
             text-align: center;
             font-size: 18px;
-            color: green;
             margin-top: 10px;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
         }
 
         #dataTable {
@@ -86,15 +96,22 @@
             border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
+            font-size: 14px;
         }
 
         #dataTable th {
             background-color: #4CAF50;
             color: white;
+            position: sticky;
+            top: 0;
         }
 
         #dataTable tr:nth-child(even) {
             background-color: #f2f2f2;
+        }
+
+        #dataTable tr:hover {
+            background-color: #ddd;
         }
     </style>
 </head>
@@ -144,13 +161,13 @@
         <input type="text" id="additionalInput" placeholder="Length (m) / Capacity / Room No." required>
         <input type="number" id="estimatedAmount" placeholder="Estimated Amount (NRs)" required>
         <input type="text" id="contractDate" placeholder="सम्झौता मिति (YYYY/MM/DD)" required>
-        <input type="number" id="valuationAmount" placeholder="Valuation Amount (NRs)" required>
-        <input type="text" id="workCompletionDate" placeholder="कार्यसम्पन्न मिति (YYYY/MM/DD)" required>
+        <input type="number" id="valuationAmount" placeholder="Valuation Amount (NRs)">
+        <input type="text" id="workCompletionDate" placeholder="कार्यसम्पन्न मिति (YYYY/MM/DD)">
         <input type="text" id="userName" placeholder="User Name" required>
         <input type="text" id="remarks" placeholder="Remarks">
         <button type="button" class="submit-btn" onclick="submitData()">Submit</button>
     </form>
-    <p id="responseMessage"></p>
+    <div id="responseMessage"></div>
 </div>
 
 <div class="container" id="tableContainer">
@@ -158,12 +175,20 @@
     <table id="dataTable">
         <thead>
             <tr>
-                <th>वार्ड नं.</th>
-                <th>योजना नाम</th>
-                <th>प्रकार</th>
-                <th>मुख्य काम</th>
-                <th>अनुमानित रकम</th>
-                <th>मिति</th>
+                <th>FY</th>
+                <th>Budget</th>
+                <th>Ward</th>
+                <th>Project</th>
+                <th>Type</th>
+                <th>Work Type</th>
+                <th>Details</th>
+                <th>Specs</th>
+                <th>Estimate</th>
+                <th>Contract Date</th>
+                <th>Valuation</th>
+                <th>Completion</th>
+                <th>User</th>
+                <th>Remarks</th>
             </tr>
         </thead>
         <tbody id="tableBody">
@@ -175,13 +200,38 @@
     let storedData = JSON.parse(localStorage.getItem('projectData')) || [];
     displayData();
 
+    // Input validation listeners
+    document.querySelectorAll('input, select').forEach(element => {
+        element.addEventListener('input', validateField);
+        element.addEventListener('blur', validateField);
+    });
+
+    function validateField(e) {
+        const field = e.target;
+        if (field.value.trim() === '') {
+            field.classList.remove('filled');
+            field.classList.add('empty');
+        } else {
+            field.classList.remove('empty');
+            field.classList.add('filled');
+        }
+    }
+
     function showForm() {
         const stage = document.getElementById("projectStage").value;
         document.getElementById("formContainer").style.display = stage ? "block" : "none";
 
-        const fieldsToHide = ["additionalInput", "valuationAmount", "workCompletionDate"];
-        fieldsToHide.forEach(field => {
-            document.getElementById(field).style.display = stage === "Estimate" ? "none" : "block";
+        // Handle Work Completion fields
+        const completionFields = ["valuationAmount", "workCompletionDate"];
+        completionFields.forEach(field => {
+            const element = document.getElementById(field);
+            if (stage === "Estimate") {
+                element.style.display = "none";
+                element.removeAttribute('required');
+            } else {
+                element.style.display = "block";
+                element.setAttribute('required', '');
+            }
         });
     }
 
@@ -210,21 +260,31 @@
         }
     }
 
+    function validateForm() {
+        let isValid = true;
+        const stage = document.getElementById("projectStage").value;
+        
+        document.querySelectorAll('input[required], select[required]').forEach(field => {
+            if (stage === "Estimate" && ['valuationAmount', 'workCompletionDate'].includes(field.id)) {
+                return; // Skip validation for these fields in Estimate mode
+            }
+            
+            if (field.value.trim() === '') {
+                field.classList.add('empty');
+                isValid = false;
+            } else {
+                field.classList.remove('empty');
+            }
+        });
+
+        return isValid;
+    }
+
     function resetForm() {
-        document.getElementById("fiscalYear").value = "2081/082";
-        document.getElementById("budgetType").selectedIndex = 0;
-        document.getElementById("wardNo").value = '';
-        document.getElementById("projectName").value = '';
-        document.getElementById("projectType").selectedIndex = 0;
-        document.getElementById("workType").innerHTML = '<option value="">मुख्य काम</option>';
-        document.getElementById("otherWorkDetails").value = '';
-        document.getElementById("additionalInput").value = '';
-        document.getElementById("estimatedAmount").value = '';
-        document.getElementById("contractDate").value = '';
-        document.getElementById("valuationAmount").value = '';
-        document.getElementById("workCompletionDate").value = '';
-        document.getElementById("userName").value = '';
-        document.getElementById("remarks").value = '';
+        document.getElementById("projectForm").reset();
+        document.querySelectorAll('input, select').forEach(field => {
+            field.classList.remove('empty', 'filled');
+        });
         updateWorkTypes();
     }
 
@@ -232,15 +292,23 @@
         const tbody = document.getElementById('tableBody');
         tbody.innerHTML = '';
         
-        storedData.forEach((entry, index) => {
+        storedData.forEach((entry) => {
             const row = `
                 <tr>
+                    <td>${entry.fiscalYear}</td>
+                    <td>${entry.budgetType}</td>
                     <td>${entry.wardNo}</td>
                     <td>${entry.projectName}</td>
                     <td>${entry.projectType}</td>
                     <td>${entry.workType}</td>
+                    <td>${entry.otherWorkDetails}</td>
+                    <td>${entry.additionalInput}</td>
                     <td>${entry.estimatedAmount}</td>
                     <td>${entry.contractDate}</td>
+                    <td>${entry.valuationAmount || '-'}</td>
+                    <td>${entry.workCompletionDate || '-'}</td>
+                    <td>${entry.userName}</td>
+                    <td>${entry.remarks || '-'}</td>
                 </tr>`;
             tbody.innerHTML += row;
         });
@@ -249,9 +317,13 @@
     }
 
     function submitData() {
-        const stage = document.getElementById("projectStage").value;
-        const sheetName = stage === "Estimate" ? "Sheet7" : null;
+        if (!validateForm()) {
+            document.getElementById("responseMessage").innerHTML = 
+                '<span class="error">Please fill all required fields!</span>';
+            return;
+        }
 
+        const stage = document.getElementById("projectStage").value;
         const formData = {
             fiscalYear: document.getElementById("fiscalYear").value,
             budgetType: document.getElementById("budgetType").value,
@@ -263,32 +335,32 @@
             additionalInput: document.getElementById("additionalInput").value,
             estimatedAmount: document.getElementById("estimatedAmount").value,
             contractDate: document.getElementById("contractDate").value,
-            valuationAmount: document.getElementById("valuationAmount").value,
-            workCompletionDate: document.getElementById("workCompletionDate").value,
+            valuationAmount: stage === "WorkCompletion" ? document.getElementById("valuationAmount").value : null,
+            workCompletionDate: stage === "WorkCompletion" ? document.getElementById("workCompletionDate").value : null,
             userName: document.getElementById("userName").value,
             remarks: document.getElementById("remarks").value,
             fileUrl: "No File",
             responseMessage: "Submitted Successfully",
-            sheetName: sheetName
+            sheetName: stage === "Estimate" ? "Sheet7" : null
         };
 
-        // Save to localStorage
         storedData.push(formData);
         localStorage.setItem('projectData', JSON.stringify(storedData));
         
-        // Update table display
         displayData();
 
-        fetch("https://script.google.com/macros/s/AKfycbxfogO_aoWevUzVS1kA-8X-bZAe8Yk5UHFF8tnGdk3Mdn--pizmRjDOpNlqmouZheWY/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbydscwccOq7z6O8YE8DCIt6oahNQGK5QZf9Nyf4Nut7w-QmC0kBWTOjbz8z5GePlD4z/exec", {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(formData)
         }).then(() => {
-            document.getElementById("responseMessage").innerText = "✅ Data Submitted Successfully!";
+            document.getElementById("responseMessage").innerHTML = 
+                '<span class="success">✅ Data Submitted Successfully!</span>';
             resetForm();
         }).catch(error => {
-            document.getElementById("responseMessage").innerText = "❌ Error Submitting Data!";
+            document.getElementById("responseMessage").innerHTML = 
+                '<span class="error">❌ Error Submitting Data!</span>';
             console.error("Error:", error);
         });
     }
@@ -296,4 +368,4 @@
 
 <p>&copy; Developed by Tuphan Jijung KC 😊</p>
 </body>
-</html>    
+</html>
