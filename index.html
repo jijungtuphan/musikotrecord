@@ -162,8 +162,13 @@
         <input type="text" id="additionalInput" placeholder="Length (m) / Capacity / Room No." required>
         <input type="number" id="estimatedAmount" placeholder="Estimated Amount (NRs)" required>
         <input type="text" id="contractDate" placeholder="सम्झौता मिति (YYYY/MM/DD)" required>
-        <input type="number" id="valuationAmount" placeholder="Valuation Amount (NRs)">
-        <input type="text" id="workCompletionDate" placeholder="कार्यसम्पन्न मिति (YYYY/MM/DD)">
+        
+        <!-- Work Completion Fields -->
+        <div id="completionFields" style="display: none;">
+            <input type="number" id="valuationAmount" placeholder="Valuation Amount (NRs)">
+            <input type="text" id="workCompletionDate" placeholder="कार्यसम्पन्न मिति (YYYY/MM/DD)">
+        </div>
+
         <input type="text" id="userName" placeholder="User Name" required>
         <input type="text" id="remarks" placeholder="Remarks">
         <button type="button" class="submit-btn" onclick="submitData()">Submit</button>
@@ -201,7 +206,6 @@
     let storedData = JSON.parse(localStorage.getItem('projectData')) || [];
     displayData();
 
-    // Input validation listeners
     document.querySelectorAll('input, select').forEach(element => {
         element.addEventListener('input', validateField);
         element.addEventListener('blur', validateField);
@@ -220,20 +224,20 @@
 
     function showForm() {
         const stage = document.getElementById("projectStage").value;
-        document.getElementById("formContainer").style.display = stage ? "block" : "none";
+        const formContainer = document.getElementById("formContainer");
+        const completionFields = document.getElementById("completionFields");
 
-        // Handle Work Completion fields
-        const completionFields = ["valuationAmount", "workCompletionDate"];
-        completionFields.forEach(field => {
-            const element = document.getElementById(field);
-            if (stage === "Estimate") {
-                element.style.display = "none";
-                element.removeAttribute('required');
-            } else {
-                element.style.display = "block";
-                element.setAttribute('required', '');
-            }
-        });
+        formContainer.style.display = stage ? "block" : "none";
+        
+        if (stage === "WorkCompletion") {
+            completionFields.style.display = "block";
+            document.getElementById("valuationAmount").required = true;
+            document.getElementById("workCompletionDate").required = true;
+        } else {
+            completionFields.style.display = "none";
+            document.getElementById("valuationAmount").required = false;
+            document.getElementById("workCompletionDate").required = false;
+        }
     }
 
     function updateWorkTypes() {
@@ -266,8 +270,8 @@
         const stage = document.getElementById("projectStage").value;
         
         document.querySelectorAll('input[required], select[required]').forEach(field => {
-            if (stage === "Estimate" && ['valuationAmount', 'workCompletionDate'].includes(field.id)) {
-                return; // Skip validation for these fields in Estimate mode
+            if (stage === "Estimate" && field.id === "completionFields") {
+                return;
             }
             
             if (field.value.trim() === '') {
@@ -347,10 +351,9 @@
 
         storedData.push(formData);
         localStorage.setItem('projectData', JSON.stringify(storedData));
-        
         displayData();
 
-        fetch("https://script.google.com/macros/s/AKfycbydscwccOq7z6O8YE8DCIt6oahNQGK5QZf9Nyf4Nut7w-QmC0kBWTOjbz8z5GePlD4z/exec", {
+        fetch("https://script.google.com/macros/s/AKfycbxt4nbUYCp-3RVkKooGlU6EAxuAM-5yhKmvaA4wn34K6_G0ElwPL0_Te5nwd10ywtiD/exec", {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
