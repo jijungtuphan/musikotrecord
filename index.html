@@ -5,301 +5,681 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Infrastructure Project Entry</title>
     <style>
+        :root {
+            --primary-color: #4CAF50;
+            --primary-dark: #388E3C;
+            --primary-light: #C8E6C9;
+            --error-color: #dc3545;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --text-color: #333;
+            --light-gray: #f5f5f5;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #b3e0ac;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #e8f5e9;
+            color: var(--text-color);
+            line-height: 1.6;
             padding: 20px;
-            color: black;
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 25px;
+            margin-bottom: 25px;
             width: 100%;
-            max-width: 900px;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        h1, h2, h3 {
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
             margin-bottom: 20px;
         }
 
-        h2 {
-            text-align: center;
-            color: #333;
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
         }
 
         input, select {
             width: 100%;
-            padding: 8px;
-            margin: 8px 0;
+            padding: 12px;
             border: 2px solid #ddd;
-            border-radius: 5px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
             transition: all 0.3s ease;
         }
 
         input:focus, select:focus {
             outline: none;
-            border-color: #4CAF50;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
         }
 
         .empty {
-            border-color: #dc3545 !important;
+            border-color: var(--error-color) !important;
             background-color: #ffe6e6;
         }
 
         .filled {
-            border-color: #28a745 !important;
+            border-color: var(--success-color) !important;
             background-color: #e8f5e9;
         }
 
-        .submit-btn {
-            width: 100%;
-            padding: 10px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-            margin-top: 15px;
+        .validation-message {
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
         }
 
-        .submit-btn:hover {
-            background-color: #218838;
+        .validation-message.error {
+            color: var(--error-color);
+            display: block;
+        }
+
+        .validation-message.success {
+            color: var(--success-color);
+            display: block;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-danger {
+            background-color: var(--error-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn-group .btn {
+            flex: 1;
         }
 
         #responseMessage {
             text-align: center;
             font-size: 18px;
-            margin-top: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: var(--border-radius);
         }
 
         .success {
-            color: #28a745;
+            background-color: #d4edda;
+            color: var(--success-color);
+            border: 1px solid #c3e6cb;
         }
 
         .error {
-            color: #dc3545;
+            background-color: #f8d7da;
+            color: var(--error-color);
+            border: 1px solid #f5c6cb;
+        }
+
+        .warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .table-container {
+            overflow-x: auto;
         }
 
         #dataTable {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
-            display: none;
+            font-size: 14px;
+            min-width: 800px;
         }
 
         #dataTable th, #dataTable td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 10px;
             text-align: left;
-            font-size: 14px;
         }
 
         #dataTable th {
-            background-color: #4CAF50;
+            background-color: var(--primary-color);
             color: white;
             position: sticky;
             top: 0;
         }
 
         #dataTable tr:nth-child(even) {
-            background-color: #f2f2f2;
+            background-color: #f9f9f9;
         }
 
         #dataTable tr:hover {
-            background-color: #ddd;
+            background-color: #f1f1f1;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .action-buttons button {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-container select, .filter-container input {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .filter-container {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <h2>पूर्वाधार बिकाश कार्यक्रम रेकर्ड</h2>
-    <label for="projectStage">योजना को अवस्था छान्नुहोस्</label>
-    <select id="projectStage" onchange="showForm()">
-        <option value="">--Select--</option>
-        <option value="Estimate">Estimate</option>
-        <option value="WorkCompletion">Work Completion</option>
-    </select>
-</div>
-
-<div class="container" id="formContainer" style="display: none;">
-    <form id="projectForm">
-        <select id="fiscalYear">
-            <option value="2081/082">2081/082</option>
-        </select>
-        <select id="budgetType" required>
-            <option value="">बजेट प्रकार छान्नुहोस्</option>
-            <option value="संघीय">संघीय</option>
-            <option value="प्रदेश">प्रदेश</option>
-            <option value="नगरपालिका">नगरपालिका</option>
-            <option value="सहरी साशकीय">सहरी साशकीय</option>
-            <option value="प्रधानमन्त्री रोजगार कार्यक्रम">प्रधानमन्त्री रोजगार कार्यक्रम</option>
-            <option value="मुख्यमन्त्री रोजगार कार्यक्रम">मुख्यमन्त्री रोजगार कार्यक्रम</option>
-            <option value="सडक बोर्ड">सडक बोर्ड</option>
-            <option value="अन्य">अन्य</option>
-        </select>
-        <input type="number" id="wardNo" placeholder="Ward No." required>
-        <input type="text" id="projectName" placeholder="योजना को नाम" required>
-        <select id="projectType" required onchange="updateWorkTypes()">
-            <option value="">योजना को प्रकार</option>
-            <option value="Road">Road</option>
-            <option value="गोरेटो बाटो">गोरेटो बाटो</option>
-            <option value="Water Supply">Water Supply</option>
-            <option value="Irrigation">Irrigation</option>
-            <option value="Building">Building</option>
-            <option value="Bridge">Bridge</option>
-            <option value="Others">Others</option>
-        </select>
-        <select id="workType" required>
-            <option value="">मुख्य काम</option>
-        </select>
-        <input type="text" id="otherWorkDetails" placeholder="अन्य काम को विवरण" required>
-        <input type="text" id="additionalInput" placeholder="Length (m) / Capacity / Room No." required>
-        <input type="number" id="estimatedAmount" placeholder="Estimated Amount (NRs)" required>
-        <input type="text" id="contractDate" placeholder="सम्झौता मिति (YYYY/MM/DD)" required>
-        
-        <!-- Work Completion Fields -->
-        <div id="completionFields" style="display: none;">
-            <input type="number" id="valuationAmount" placeholder="Valuation Amount (NRs)">
-            <input type="text" id="workCompletionDate" placeholder="कार्यसम्पन्न मिति (YYYY/MM/DD)">
+    <div class="container">
+        <h1>पूर्वाधार बिकाश कार्यक्रम रेकर्ड</h1>
+        <div class="form-group">
+            <label for="projectStage">योजना को अवस्था छान्नुहोस्</label>
+            <select id="projectStage" onchange="showForm()">
+                <option value="">--Select--</option>
+                <option value="Estimate">Estimate</option>
+                <option value="WorkCompletion">Work Completion</option>
+            </select>
         </div>
+    </div>
 
-        <input type="text" id="userName" placeholder="User Name" required>
-        <input type="text" id="remarks" placeholder="Remarks">
-        <button type="button" class="submit-btn" onclick="submitData()">Submit</button>
-    </form>
-    <div id="responseMessage"></div>
-</div>
+    <div class="container hidden" id="formContainer">
+        <h2 id="formTitle">योजना विवरण भर्नुहोस्</h2>
+        <form id="projectForm">
+            <div class="form-group">
+                <label for="fiscalYear">आर्थिक वर्ष</label>
+                <select id="fiscalYear">
+                    <option value="2082/083">2082/083</option>
+                    <option value="2081/082">2081/082</option>
+                    <option value="2080/081">2080/081</option>
+                </select>
+            </div>
 
-<div class="container" id="tableContainer">
-    <h2>सबै रेकर्डहरू</h2>
-    <table id="dataTable">
-        <thead>
-            <tr>
-                <th>FY</th>
-                <th>Budget</th>
-                <th>Ward</th>
-                <th>Project</th>
-                <th>Type</th>
-                <th>Work Type</th>
-                <th>Details</th>
-                <th>Specs</th>
-                <th>Estimate</th>
-                <th>Contract Date</th>
-                <th>Valuation</th>
-                <th>Completion</th>
-                <th>User</th>
-                <th>Remarks</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody">
-        </tbody>
-    </table>
-</div>
+            <div class="form-group">
+                <label for="budgetType">बजेट प्रकार</label>
+                <select id="budgetType" required>
+                    <option value="">बजेट प्रकार छान्नुहोस्</option>
+                    <option value="संघीय">संघीय</option>
+                    <option value="प्रदेश">प्रदेश</option>
+                    <option value="नगरपालिका">नगरपालिका</option>
+                    <option value="सहरी साशकीय">सहरी साशकीय</option>
+                    <option value="प्रधानमन्त्री रोजगार कार्यक्रम">प्रधानमन्त्री रोजगार कार्यक्रम</option>
+                    <option value="मुख्यमन्त्री रोजगार कार्यक्रम">मुख्यमन्त्री रोजगार कार्यक्रम</option>
+                    <option value="सडक बोर्ड">सडक बोर्ड</option>
+                    <option value="अन्य">अन्य</option>
+                </select>
+                <div class="validation-message" id="budgetTypeValidation"></div>
+            </div>
 
-<script>
-    let storedData = JSON.parse(localStorage.getItem('projectData')) || [];
-    displayData();
+            <div class="form-group">
+                <label for="wardNo">वार्ड नम्बर</label>
+                <input type="number" id="wardNo" placeholder="Ward No." min="1" max="35" required>
+                <div class="validation-message" id="wardNoValidation"></div>
+            </div>
 
-    document.querySelectorAll('input, select').forEach(element => {
-        element.addEventListener('input', validateField);
-        element.addEventListener('blur', validateField);
-    });
+            <div class="form-group">
+                <label for="projectName">योजना को नाम</label>
+                <input type="text" id="projectName" placeholder="योजना को नाम" required>
+                <div class="validation-message" id="projectNameValidation"></div>
+            </div>
 
-    function validateField(e) {
-        const field = e.target;
-        if (field.value.trim() === '') {
-            field.classList.remove('filled');
-            field.classList.add('empty');
-        } else {
-            field.classList.remove('empty');
-            field.classList.add('filled');
-        }
-    }
+            <div class="form-group">
+                <label for="projectType">योजना को प्रकार</label>
+                <select id="projectType" required onchange="updateWorkTypes()">
+                    <option value="">योजना को प्रकार</option>
+                    <option value="Road">Road</option>
+                    <option value="गोरेटो बाटो">गोरेटो बाटो</option>
+                    <option value="Water Supply">Water Supply</option>
+                    <option value="Irrigation">Irrigation</option>
+                    <option value="Building">Building</option>
+                    <option value="Bridge">Bridge</option>
+                    <option value="Others">Others</option>
+                </select>
+                <div class="validation-message" id="projectTypeValidation"></div>
+            </div>
 
-    function showForm() {
-        const stage = document.getElementById("projectStage").value;
-        const formContainer = document.getElementById("formContainer");
-        const completionFields = document.getElementById("completionFields");
+            <div class="form-group">
+                <label for="workType">मुख्य काम</label>
+                <select id="workType" required>
+                    <option value="">मुख्य काम</option>
+                </select>
+                <div class="validation-message" id="workTypeValidation"></div>
+            </div>
 
-        formContainer.style.display = stage ? "block" : "none";
+            <div class="form-group">
+                <label for="otherWorkDetails">अन्य काम को विवरण</label>
+                <input type="text" id="otherWorkDetails" placeholder="अन्य काम को विवरण" required>
+                <div class="validation-message" id="otherWorkDetailsValidation"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="additionalInput" id="additionalInputLabel">Length (m)</label>
+                <input type="text" id="additionalInput" placeholder="Length (m) / Capacity / Room No." required>
+                <div class="validation-message" id="additionalInputValidation"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="estimatedAmount">अनुमानित रकम (रु)</label>
+                <input type="number" id="estimatedAmount" placeholder="Estimated Amount (NRs)" min="0" required>
+                <div class="validation-message" id="estimatedAmountValidation"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="contractDate">सम्झौता मिति</label>
+                <input type="text" id="contractDate" placeholder="YYYY/MM/DD" required>
+                <div class="validation-message" id="contractDateValidation"></div>
+            </div>
+
+            <!-- Work Completion Fields -->
+            <div id="completionFields" class="hidden">
+                <div class="form-group">
+                    <label for="valuationAmount">मुल्यांकन रकम (रु)</label>
+                    <input type="number" id="valuationAmount" placeholder="Valuation Amount (NRs)" min="0">
+                    <div class="validation-message" id="valuationAmountValidation"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="workCompletionDate">कार्यसम्पन्न मिति</label>
+                    <input type="text" id="workCompletionDate" placeholder="YYYY/MM/DD">
+                    <div class="validation-message" id="workCompletionDateValidation"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="userName">प्रयोगकर्ता नाम</label>
+                <input type="text" id="userName" placeholder="User Name" required>
+                <div class="validation-message" id="userNameValidation"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="remarks">टिप्पणीहरू</label>
+                <input type="text" id="remarks" placeholder="Remarks">
+            </div>
+
+            <div class="btn-group">
+                <button type="button" class="btn btn-primary" onclick="submitData()">Submit</button>
+                <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+            </div>
+        </form>
+        <div id="responseMessage"></div>
+    </div>
+
+    <div class="container" id="tableContainer">
+        <h2>सबै रेकर्डहरू</h2>
         
-        if (stage === "WorkCompletion") {
-            completionFields.style.display = "block";
-            document.getElementById("valuationAmount").required = true;
-            document.getElementById("workCompletionDate").required = true;
-        } else {
-            completionFields.style.display = "none";
-            document.getElementById("valuationAmount").required = false;
-            document.getElementById("workCompletionDate").required = false;
-        }
-    }
+        <div class="filter-container">
+            <select id="filterStage" onchange="filterData()">
+                <option value="">All Stages</option>
+                <option value="Estimate">Estimate</option>
+                <option value="WorkCompletion">Work Completion</option>
+            </select>
+            <select id="filterWard" onchange="filterData()">
+                <option value="">All Wards</option>
+                <!-- Options will be populated dynamically -->
+            </select>
+            <select id="filterProjectType" onchange="filterData()">
+                <option value="">All Project Types</option>
+                <!-- Options will be populated dynamically -->
+            </select>
+            <button class="btn btn-secondary" onclick="exportToCSV()">Export to CSV</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th>FY</th>
+                        <th>Budget</th>
+                        <th>Ward</th>
+                        <th>Project</th>
+                        <th>Type</th>
+                        <th>Work Type</th>
+                        <th>Details</th>
+                        <th>Specs</th>
+                        <th>Estimate</th>
+                        <th>Contract Date</th>
+                        <th>Valuation</th>
+                        <th>Completion</th>
+                        <th>User</th>
+                        <th>Remarks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+        <div id="noDataMessage" class="hidden" style="text-align: center; padding: 20px;">
+            No records found. Please add some data.
+        </div>
+    </div>
 
-    function updateWorkTypes() {
-        let projectType = document.getElementById("projectType").value;
-        let workTypeSelect = document.getElementById("workType");
-        workTypeSelect.innerHTML = "<option value=''>मुख्य काम</option>";
+    <div class="footer">
+        <p>&copy; Developed by Tuphan Jijung KC 😊</p>
+    </div>
 
-        const workTypes = {
-            "Road": ["New Cutting", "Double Cutting", "PCC", "RCC", "Soling"],
-            "गोरेटो बाटो": ["New Cutting", "Double Cutting", "PCC", "RCC", "Soling"],
-            "Water Supply": ["Intake", "RVT", "Pipeline"],
-            "Irrigation": ["Earth Canal", "PCC Canal", "RCC Canal"],
-            "Building": ["New Building Construction", "Maintenance", "Toilet Construction"],
-            "Bridge": ["Suspension Bridge", "Concrete Bridge"],
-            "Others": ["Miscellaneous"]
-        };
+    <script>
+        // Global variables
+        let storedData = JSON.parse(localStorage.getItem('projectData')) || [];
+        let editIndex = -1;
 
-        if (workTypes[projectType]) {
-            workTypes[projectType].forEach(type => {
-                let option = document.createElement("option");
-                option.value = type;
-                option.textContent = type;
-                workTypeSelect.appendChild(option);
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            displayData();
+            setupEventListeners();
+            populateFilterOptions();
+        });
+
+        // Set up event listeners for form validation
+        function setupEventListeners() {
+            document.querySelectorAll('input, select').forEach(element => {
+                element.addEventListener('input', validateField);
+                element.addEventListener('blur', validateField);
             });
-        }
-    }
 
-    function validateForm() {
-        let isValid = true;
-        const stage = document.getElementById("projectStage").value;
-        
-        document.querySelectorAll('input[required], select[required]').forEach(field => {
-            if (stage === "Estimate" && field.id === "completionFields") {
+            // Add specific validation for date fields
+            document.getElementById('contractDate').addEventListener('blur', validateDateField);
+            document.getElementById('workCompletionDate').addEventListener('blur', validateDateField);
+            
+            // Update additional input label based on project type
+            document.getElementById('projectType').addEventListener('change', updateAdditionalInputLabel);
+        }
+
+        // Validate individual form fields
+        function validateField(e) {
+            const field = e.target;
+            const validationId = field.id + 'Validation';
+            const validationElement = document.getElementById(validationId);
+            
+            if (field.hasAttribute('required') && field.value.trim() === '') {
+                field.classList.remove('filled');
+                field.classList.add('empty');
+                if (validationElement) {
+                    validationElement.textContent = 'This field is required';
+                    validationElement.className = 'validation-message error';
+                }
+                return false;
+            } else {
+                field.classList.remove('empty');
+                field.classList.add('filled');
+                if (validationElement) {
+                    validationElement.textContent = '';
+                    validationElement.className = 'validation-message';
+                }
+                
+                // Additional validation for specific fields
+                if (field.id === 'wardNo' && field.value) {
+                    const wardNo = parseInt(field.value);
+                    if (wardNo < 1 || wardNo > 35) {
+                        field.classList.remove('filled');
+                        field.classList.add('empty');
+                        if (validationElement) {
+                            validationElement.textContent = 'Ward number must be between 1 and 35';
+                            validationElement.className = 'validation-message error';
+                        }
+                        return false;
+                    }
+                }
+                
+                if (field.id === 'estimatedAmount' && field.value) {
+                    const amount = parseFloat(field.value);
+                    if (amount < 0) {
+                        field.classList.remove('filled');
+                        field.classList.add('empty');
+                        if (validationElement) {
+                            validationElement.textContent = 'Amount cannot be negative';
+                            validationElement.className = 'validation-message error';
+                        }
+                        return false;
+                    }
+                }
+                
+                return true;
+            }
+        }
+
+        // Validate date fields
+        function validateDateField(e) {
+            const field = e.target;
+            const validationId = field.id + 'Validation';
+            const validationElement = document.getElementById(validationId);
+            const datePattern = /^\d{4}\/\d{2}\/\d{2}$/;
+            
+            if (field.value && !datePattern.test(field.value)) {
+                field.classList.remove('filled');
+                field.classList.add('empty');
+                if (validationElement) {
+                    validationElement.textContent = 'Date must be in YYYY/MM/DD format';
+                    validationElement.className = 'validation-message error';
+                }
+                return false;
+            }
+            
+            return validateField(e);
+        }
+
+        // Show/hide form based on project stage selection
+        function showForm() {
+            const stage = document.getElementById("projectStage").value;
+            const formContainer = document.getElementById("formContainer");
+            const completionFields = document.getElementById("completionFields");
+            const formTitle = document.getElementById("formTitle");
+
+            if (stage) {
+                formContainer.classList.remove("hidden");
+                formTitle.textContent = stage === "Estimate" ? "योजना अनुमान विवरण भर्नुहोस्" : "योजना कार्यसम्पन्न विवरण भर्नुहोस्";
+                
+                if (stage === "WorkCompletion") {
+                    completionFields.classList.remove("hidden");
+                    document.getElementById("valuationAmount").setAttribute("required", "true");
+                    document.getElementById("workCompletionDate").setAttribute("required", "true");
+                } else {
+                    completionFields.classList.add("hidden");
+                    document.getElementById("valuationAmount").removeAttribute("required");
+                    document.getElementById("workCompletionDate").removeAttribute("required");
+                }
+            } else {
+                formContainer.classList.add("hidden");
+            }
+        }
+
+        // Update work types based on selected project type
+        function updateWorkTypes() {
+            let projectType = document.getElementById("projectType").value;
+            let workTypeSelect = document.getElementById("workType");
+            workTypeSelect.innerHTML = "<option value=''>मुख्य काम</option>";
+
+            const workTypes = {
+                "Road": ["New Cutting", "Double Cutting", "PCC", "RCC", "Soling"],
+                "गोरेटो बाटो": ["New Cutting", "Double Cutting", "PCC", "RCC", "Soling"],
+                "Water Supply": ["Intake", "RVT", "Pipeline"],
+                "Irrigation": ["Earth Canal", "PCC Canal", "RCC Canal"],
+                "Building": ["New Building Construction", "Maintenance", "Toilet Construction"],
+                "Bridge": ["Suspension Bridge", "Concrete Bridge"],
+                "Others": ["Miscellaneous"]
+            };
+
+            if (workTypes[projectType]) {
+                workTypes[projectType].forEach(type => {
+                    let option = document.createElement("option");
+                    option.value = type;
+                    option.textContent = type;
+                    workTypeSelect.appendChild(option);
+                });
+            }
+            
+            // Update additional input label based on project type
+            updateAdditionalInputLabel();
+        }
+
+        // Update additional input label based on project type
+        function updateAdditionalInputLabel() {
+            const projectType = document.getElementById("projectType").value;
+            const label = document.getElementById("additionalInputLabel");
+            const input = document.getElementById("additionalInput");
+            
+            switch(projectType) {
+                case "Road":
+                case "गोरेटो बाटो":
+                    label.textContent = "Length (m)";
+                    input.placeholder = "Length in meters";
+                    break;
+                case "Water Supply":
+                    label.textContent = "Capacity";
+                    input.placeholder = "Capacity details";
+                    break;
+                case "Building":
+                    label.textContent = "Room No.";
+                    input.placeholder = "Number of rooms";
+                    break;
+                default:
+                    label.textContent = "Specifications";
+                    input.placeholder = "Project specifications";
+            }
+        }
+
+        // Validate the entire form
+        function validateForm() {
+            let isValid = true;
+            const stage = document.getElementById("projectStage").value;
+            
+            // Validate all required fields
+            document.querySelectorAll('input[required], select[required]').forEach(field => {
+                if (stage === "Estimate" && (field.id === "valuationAmount" || field.id === "workCompletionDate")) {
+                    return; // Skip completion fields for estimate stage
+                }
+                
+                if (!validateField({target: field})) {
+                    isValid = false;
+                }
+            });
+
+            return isValid;
+        }
+
+        // Reset the form
+        function resetForm() {
+            document.getElementById("projectForm").reset();
+            document.querySelectorAll('input, select').forEach(field => {
+                field.classList.remove('empty', 'filled');
+                const validationId = field.id + 'Validation';
+                const validationElement = document.getElementById(validationId);
+                if (validationElement) {
+                    validationElement.textContent = '';
+                    validationElement.className = 'validation-message';
+                }
+            });
+            updateWorkTypes();
+            editIndex = -1;
+            document.getElementById("responseMessage").innerHTML = '';
+            document.querySelector('.btn-primary').textContent = 'Submit';
+        }
+
+        // Display data in the table
+        function displayData() {
+            const tbody = document.getElementById('tableBody');
+            const noDataMessage = document.getElementById('noDataMessage');
+            const dataTable = document.getElementById('dataTable');
+            
+            tbody.innerHTML = '';
+            
+            if (storedData.length === 0) {
+                dataTable.classList.add('hidden');
+                noDataMessage.classList.remove('hidden');
                 return;
             }
             
-            if (field.value.trim() === '') {
-                field.classList.add('empty');
-                isValid = false;
-            } else {
-                field.classList.remove('empty');
-            }
-        });
-
-        return isValid;
-    }
-
-    function resetForm() {
-        document.getElementById("projectForm").reset();
-        document.querySelectorAll('input, select').forEach(field => {
-            field.classList.remove('empty', 'filled');
-        });
-        updateWorkTypes();
-    }
-
-    function displayData() {
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        
-        storedData.forEach((entry) => {
-            const row = `
-                <tr>
+            dataTable.classList.remove('hidden');
+            noDataMessage.classList.add('hidden');
+            
+            storedData.forEach((entry, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
                     <td>${entry.fiscalYear}</td>
                     <td>${entry.budgetType}</td>
                     <td>${entry.wardNo}</td>
@@ -314,62 +694,273 @@
                     <td>${entry.workCompletionDate || '-'}</td>
                     <td>${entry.userName}</td>
                     <td>${entry.remarks || '-'}</td>
-                </tr>`;
-            tbody.innerHTML += row;
-        });
-
-        document.getElementById('dataTable').style.display = storedData.length > 0 ? 'table' : 'none';
-    }
-
-    function submitData() {
-        if (!validateForm()) {
-            document.getElementById("responseMessage").innerHTML = 
-                '<span class="error">Please fill all required fields!</span>';
-            return;
+                    <td class="action-buttons">
+                        <button class="btn btn-secondary" onclick="editData(${index})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteData(${index})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Update filter options
+            populateFilterOptions();
         }
 
-        const stage = document.getElementById("projectStage").value;
-        const formData = {
-            fiscalYear: document.getElementById("fiscalYear").value,
-            budgetType: document.getElementById("budgetType").value,
-            wardNo: document.getElementById("wardNo").value,
-            projectName: document.getElementById("projectName").value,
-            projectType: document.getElementById("projectType").value,
-            workType: document.getElementById("workType").value,
-            otherWorkDetails: document.getElementById("otherWorkDetails").value,
-            additionalInput: document.getElementById("additionalInput").value,
-            estimatedAmount: document.getElementById("estimatedAmount").value,
-            contractDate: document.getElementById("contractDate").value,
-            valuationAmount: stage === "WorkCompletion" ? document.getElementById("valuationAmount").value : null,
-            workCompletionDate: stage === "WorkCompletion" ? document.getElementById("workCompletionDate").value : null,
-            userName: document.getElementById("userName").value,
-            remarks: document.getElementById("remarks").value,
-            fileUrl: "No File",
-            responseMessage: "Submitted Successfully",
-            sheetName: stage === "Estimate" ? "Sheet7" : null
-        };
+        // Populate filter dropdowns with unique values from data
+        function populateFilterOptions() {
+            const wardFilter = document.getElementById('filterWard');
+            const projectTypeFilter = document.getElementById('filterProjectType');
+            
+            // Clear existing options (except the first one)
+            while (wardFilter.children.length > 1) {
+                wardFilter.removeChild(wardFilter.lastChild);
+            }
+            while (projectTypeFilter.children.length > 1) {
+                projectTypeFilter.removeChild(projectTypeFilter.lastChild);
+            }
+            
+            // Get unique values
+            const uniqueWards = [...new Set(storedData.map(item => item.wardNo))].sort();
+            const uniqueProjectTypes = [...new Set(storedData.map(item => item.projectType))].sort();
+            
+            // Add options to ward filter
+            uniqueWards.forEach(ward => {
+                const option = document.createElement('option');
+                option.value = ward;
+                option.textContent = `Ward ${ward}`;
+                wardFilter.appendChild(option);
+            });
+            
+            // Add options to project type filter
+            uniqueProjectTypes.forEach(type => {
+                const option = document.createElement('option');
+                option.value = type;
+                option.textContent = type;
+                projectTypeFilter.appendChild(option);
+            });
+        }
 
-        storedData.push(formData);
-        localStorage.setItem('projectData', JSON.stringify(storedData));
-        displayData();
+        // Filter data based on selected filters
+        function filterData() {
+            const stageFilter = document.getElementById('filterStage').value;
+            const wardFilter = document.getElementById('filterWard').value;
+            const projectTypeFilter = document.getElementById('filterProjectType').value;
+            
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            const filteredData = storedData.filter(entry => {
+                // Determine the stage based on whether valuationAmount exists
+                const stage = entry.valuationAmount ? 'WorkCompletion' : 'Estimate';
+                
+                return (!stageFilter || stage === stageFilter) &&
+                       (!wardFilter || entry.wardNo == wardFilter) &&
+                       (!projectTypeFilter || entry.projectType === projectTypeFilter);
+            });
+            
+            if (filteredData.length === 0) {
+                document.getElementById('noDataMessage').classList.remove('hidden');
+                document.getElementById('dataTable').classList.add('hidden');
+                return;
+            }
+            
+            document.getElementById('noDataMessage').classList.add('hidden');
+            document.getElementById('dataTable').classList.remove('hidden');
+            
+            filteredData.forEach((entry, index) => {
+                // Find the original index to maintain edit/delete functionality
+                const originalIndex = storedData.findIndex(item => 
+                    item.fiscalYear === entry.fiscalYear &&
+                    item.budgetType === entry.budgetType &&
+                    item.wardNo === entry.wardNo &&
+                    item.projectName === entry.projectName &&
+                    item.contractDate === entry.contractDate
+                );
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${entry.fiscalYear}</td>
+                    <td>${entry.budgetType}</td>
+                    <td>${entry.wardNo}</td>
+                    <td>${entry.projectName}</td>
+                    <td>${entry.projectType}</td>
+                    <td>${entry.workType}</td>
+                    <td>${entry.otherWorkDetails}</td>
+                    <td>${entry.additionalInput}</td>
+                    <td>${entry.estimatedAmount}</td>
+                    <td>${entry.contractDate}</td>
+                    <td>${entry.valuationAmount || '-'}</td>
+                    <td>${entry.workCompletionDate || '-'}</td>
+                    <td>${entry.userName}</td>
+                    <td>${entry.remarks || '-'}</td>
+                    <td class="action-buttons">
+                        <button class="btn btn-secondary" onclick="editData(${originalIndex})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteData(${originalIndex})">Delete</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
 
-        fetch("https://script.google.com/macros/s/AKfycby1rXhGWbn1kfxCrCpyEN3TI8RU7KLVvw6Z-0vveH65dr-vV2Zrj-VWV1U4owxd42b-tg/exec", {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(formData)
-        }).then(() => {
-            document.getElementById("responseMessage").innerHTML = 
-                '<span class="success">✅ Data Submitted Successfully!</span>';
-            resetForm();
-        }).catch(error => {
-            document.getElementById("responseMessage").innerHTML = 
-                '<span class="error">❌ Error Submitting Data!</span>';
-            console.error("Error:", error);
-        });
-    }
-</script>
+        // Edit existing data
+        function editData(index) {
+            const entry = storedData[index];
+            editIndex = index;
+            
+            // Set form values
+            document.getElementById("projectStage").value = entry.valuationAmount ? "WorkCompletion" : "Estimate";
+            showForm();
+            document.getElementById("fiscalYear").value = entry.fiscalYear;
+            document.getElementById("budgetType").value = entry.budgetType;
+            document.getElementById("wardNo").value = entry.wardNo;
+            document.getElementById("projectName").value = entry.projectName;
+            document.getElementById("projectType").value = entry.projectType;
+            updateWorkTypes();
+            setTimeout(() => {
+                document.getElementById("workType").value = entry.workType;
+            }, 100);
+            document.getElementById("otherWorkDetails").value = entry.otherWorkDetails;
+            document.getElementById("additionalInput").value = entry.additionalInput;
+            document.getElementById("estimatedAmount").value = entry.estimatedAmount;
+            document.getElementById("contractDate").value = entry.contractDate;
+            document.getElementById("valuationAmount").value = entry.valuationAmount || '';
+            document.getElementById("workCompletionDate").value = entry.workCompletionDate || '';
+            document.getElementById("userName").value = entry.userName;
+            document.getElementById("remarks").value = entry.remarks || '';
+            
+            // Update validation states
+            document.querySelectorAll('input, select').forEach(field => {
+                validateField({target: field});
+            });
+            
+            // Scroll to form
+            document.getElementById("formContainer").scrollIntoView({ behavior: 'smooth' });
+            
+            // Update submit button text
+            document.querySelector('.btn-primary').textContent = 'Update';
+        }
 
-<p>&copy; Developed by Tuphan Jijung KC 😊</p>
+        // Delete data
+        function deleteData(index) {
+            if (confirm('Are you sure you want to delete this record?')) {
+                storedData.splice(index, 1);
+                localStorage.setItem('projectData', JSON.stringify(storedData));
+                displayData();
+                
+                // Show success message
+                const responseMessage = document.getElementById("responseMessage");
+                responseMessage.innerHTML = '<span class="success">Record deleted successfully!</span>';
+                setTimeout(() => {
+                    responseMessage.innerHTML = '';
+                }, 3000);
+            }
+        }
+
+        // Export data to CSV
+        function exportToCSV() {
+            if (storedData.length === 0) {
+                alert('No data to export');
+                return;
+            }
+            
+            const headers = [
+                'FY', 'Budget', 'Ward', 'Project', 'Type', 'Work Type', 
+                'Details', 'Specs', 'Estimate', 'Contract Date', 
+                'Valuation', 'Completion', 'User', 'Remarks'
+            ];
+            
+            let csvContent = headers.join(',') + '\n';
+            
+            storedData.forEach(entry => {
+                const row = [
+                    entry.fiscalYear,
+                    entry.budgetType,
+                    entry.wardNo,
+                    `"${entry.projectName}"`,
+                    entry.projectType,
+                    entry.workType,
+                    `"${entry.otherWorkDetails}"`,
+                    `"${entry.additionalInput}"`,
+                    entry.estimatedAmount,
+                    entry.contractDate,
+                    entry.valuationAmount || '',
+                    entry.workCompletionDate || '',
+                    entry.userName,
+                    `"${entry.remarks || ''}"`
+                ];
+                csvContent += row.join(',') + '\n';
+            });
+            
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'infrastructure_projects.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Submit data to storage and Google Sheets
+        function submitData() {
+            if (!validateForm()) {
+                document.getElementById("responseMessage").innerHTML = 
+                    '<span class="error">Please fill all required fields correctly!</span>';
+                return;
+            }
+
+            const stage = document.getElementById("projectStage").value;
+            const formData = {
+                fiscalYear: document.getElementById("fiscalYear").value,
+                budgetType: document.getElementById("budgetType").value,
+                wardNo: document.getElementById("wardNo").value,
+                projectName: document.getElementById("projectName").value,
+                projectType: document.getElementById("projectType").value,
+                workType: document.getElementById("workType").value,
+                otherWorkDetails: document.getElementById("otherWorkDetails").value,
+                additionalInput: document.getElementById("additionalInput").value,
+                estimatedAmount: document.getElementById("estimatedAmount").value,
+                contractDate: document.getElementById("contractDate").value,
+                valuationAmount: stage === "WorkCompletion" ? document.getElementById("valuationAmount").value : null,
+                workCompletionDate: stage === "WorkCompletion" ? document.getElementById("workCompletionDate").value : null,
+                userName: document.getElementById("userName").value,
+                remarks: document.getElementById("remarks").value,
+                fileUrl: "No File",
+                responseMessage: "Submitted Successfully",
+                sheetName: stage === "Estimate" ? "Sheet7" : null
+            };
+
+            if (editIndex >= 0) {
+                // Update existing record
+                storedData[editIndex] = formData;
+                editIndex = -1;
+                document.querySelector('.btn-primary').textContent = 'Submit';
+            } else {
+                // Add new record
+                storedData.push(formData);
+            }
+            
+            localStorage.setItem('projectData', JSON.stringify(storedData));
+            displayData();
+
+            // Send data to Google Sheets
+            fetch("https://script.google.com/macros/s/AKfycby1rXhGWbn1kfxCrCpyEN3TI8RU7KLVvw6Z-0vveH65dr-vV2Zrj-VWV1U4owxd42b-tg/exec", {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData)
+            }).then(() => {
+                document.getElementById("responseMessage").innerHTML = 
+                    '<span class="success">✅ Data Submitted Successfully!</span>';
+                resetForm();
+            }).catch(error => {
+                document.getElementById("responseMessage").innerHTML = 
+                    '<span class="error">❌ Error Submitting Data to Server! Data saved locally.</span>';
+                console.error("Error:", error);
+                resetForm();
+            });
+        }
+    </script>
 </body>
 </html>
